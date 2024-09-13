@@ -10,16 +10,12 @@ def home(request):
     tasks = Task.objects.all()
     return render(request, 'base.html', {"tasks": tasks})
   
-def new(request):
-    return render(request, 'new.html')
-  
 @csrf_exempt
 def toggle_task(request):
     if request.method == "POST":
         data = json.loads(request.body)
         task_id = data.get("id")
         completed = data.get("completed")
-
         try:
             task = Task.objects.get(id=task_id)
             task.complete = completed
@@ -30,3 +26,18 @@ def toggle_task(request):
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request"})
+  
+@csrf_exempt
+def create_task(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        title = data.get("title") 
+        try:
+            task = Task(title=title)
+            task.save()
+            return JsonResponse({"success": True, "id": task.id})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Invalid request"})
+  
+  
